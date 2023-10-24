@@ -24,12 +24,16 @@ namespace GameMennoPlochaet
         }
         protected override void Initialize()
         {
+
             base.Initialize();
         }
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _texture.Add(Content.Load<Texture2D>("Characters/Hero/Animation/Run"));
+            _texture.Add(Content.Load<Texture2D>("Characters/Hero/Animation/Jump"));
+            _texture.Add(Content.Load<Texture2D>("Characters/Hero/Animation/Idle"));
+            _texture.Add(Content.Load<Texture2D>("Characters/Hero/Animation/Walk"));
 
             InitializeGameObjects();
         }

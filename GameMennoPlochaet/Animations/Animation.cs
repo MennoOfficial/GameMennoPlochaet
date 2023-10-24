@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 
 namespace TestProject.Animations
@@ -16,11 +17,12 @@ namespace TestProject.Animations
         {
             frames = new List<AnimationFrame>();
         }
-
-        public void AddFrame(AnimationFrame animationFrame)
+        public void addFrame(int frameCount, int height)
         {
-            frames.Add(animationFrame);
-            CurrentFrame = frames[0];
+            for (int row = 0; row < frameCount; row++)
+            {
+                frames.Add(new AnimationFrame(new Rectangle(height * row, 0, height, height)));
+            }
         }
 
         public void Update(GameTime gameTime)
@@ -28,7 +30,7 @@ namespace TestProject.Animations
             CurrentFrame = frames[counter];
 
             secondCounter += gameTime.ElapsedGameTime.TotalSeconds;
-            int fps =  20;
+            int fps =  15;
 
             if(secondCounter >= 1d / fps)
             {
@@ -37,6 +39,6 @@ namespace TestProject.Animations
             }
             if (counter >= frames.Count)
                 counter = 0;
-        }
+        }   
     }
 }

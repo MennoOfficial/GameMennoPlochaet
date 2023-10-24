@@ -8,44 +8,118 @@ namespace GameMennoPlochaet.Characters.Hero
 {
     internal class Hero
     {
-        Texture2D heroTexture;
-        Animation animation;
+        public Animation animation;
         public Vector2 position = Vector2.Zero;
         public Vector2 speed = new Vector2(2, 2);
-        public Vector2 acceleration = new Vector2(0.2f, 0.2f); 
+        public float Run = 2f;
+        public Vector2 acceleration = new Vector2(0.2f, 0.2f);
         public List<Texture2D> textureListHero = new();
         private bool flipped = false;
-        //test
-
+        public Animation CurrentAnimation;
+        public Animation[] Animations;
+        public Texture2D CurrentTexture;
         public Hero(List<Texture2D> textureList)
         {
             textureListHero = textureList;
-            animation = new Animation();
-           GetFramesTextureProperties(8, 128);
-
+            Animations = new Animation[]
+            {
+                new Animation(),
+                new Animation(),
+                new Animation(),
+                new Animation(),
+                new Animation()
+            };
+            CurrentAnimation = Animations[2];
+            CurrentAnimation.addFrame(6, 128);
+            CurrentTexture = textureListHero[2];
         }
         public void Move()
         {
             float maxSpeed = 10;
             speed = Limit(speed, maxSpeed);
+
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                position.X += speed.X;
-                flipped = false;
+                if (Keyboard.GetState().IsKeyDown(Keys.LeftShift))
+                {
+                    flipped = false;
+                    CurrentAnimation = Animations[0];
+                    CurrentAnimation.addFrame(6, 128);
+                    CurrentTexture = textureListHero[0];
+                    position.X += speed.X * Run;
+                }
+                else
+                {
+                    flipped = false;
+                    CurrentAnimation = Animations[3];
+                    CurrentAnimation.addFrame(8, 128);
+                    CurrentTexture = textureListHero[3];
+                    position.X += speed.X;
+                }
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.A))
+            else if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                position.X -= speed.X;
-                flipped = true;
+                if (Keyboard.GetState().IsKeyDown(Keys.LeftShift))
+                {
+                    flipped = true;
+                    CurrentAnimation = Animations[0];
+                    CurrentAnimation.addFrame(8, 128);
+                    CurrentTexture = textureListHero[0];
+                    position.X -= speed.X * Run;
+                }
+                else
+                {
+                    flipped = true;
+                    CurrentAnimation = Animations[3];
+                    CurrentAnimation.addFrame(8, 128);
+                    CurrentTexture = textureListHero[3];
+                    position.X -= speed.X;
+                }
             }
+
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                position.Y -= speed.Y;
+                if (Keyboard.GetState().IsKeyDown(Keys.LeftShift))
+                {
+                    CurrentAnimation = Animations[0];
+                    CurrentAnimation.addFrame(8, 128);
+                    CurrentTexture = textureListHero[0];
+                    position.Y -= speed.Y * Run;
+                }
+                else
+                {
+                    CurrentAnimation = Animations[3];
+                    CurrentAnimation.addFrame(8, 128);
+                    CurrentTexture = textureListHero[3];
+                    position.Y -= speed.Y;
+                }
             }
+
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
-                position.Y += speed.Y;
+                if (Keyboard.GetState().IsKeyDown(Keys.LeftShift))
+                {
+                    CurrentAnimation = Animations[0];
+                    CurrentAnimation.addFrame(8, 128);
+                    CurrentTexture = textureListHero[0];
+                    position.Y += speed.Y * Run;
+                }
+                else
+                {
+                    CurrentAnimation = Animations[3];
+                    CurrentAnimation.addFrame(8, 128);
+                    CurrentTexture = textureListHero[3];
+                    position.Y += speed.Y;
+                }
             }
+
+            if (!Keyboard.GetState().IsKeyDown(Keys.D) && !Keyboard.GetState().IsKeyDown(Keys.A) && !Keyboard.GetState().IsKeyDown(Keys.W) && !Keyboard.GetState().IsKeyDown(Keys.S))
+            {
+                CurrentAnimation = Animations[2];
+                CurrentAnimation.addFrame(6, 128);
+                CurrentTexture = textureListHero[2];
+            }
+
         }
         private Vector2 Limit(Vector2 v, float max)
         {
@@ -57,30 +131,22 @@ namespace GameMennoPlochaet.Characters.Hero
             }
             return v;
         }
-
-        public void GetFramesTextureProperties(int frames, int height)
-        {
-            for (int row = 0; row < frames; row++)
-            {
-                animation.AddFrame(new AnimationFrame(new Rectangle(height * row, 0, height, height)));
-            }
-        }
     
         public void Update(GameTime gameTime)
         {
             Move();
-            animation.Update(gameTime);
+            CurrentAnimation.Update(gameTime);
         }
 
         public void Draw(SpriteBatch _spritebatch)
         {
             if (flipped)
             {
-                _spritebatch.Draw(heroTexture, position, animation.CurrentFrame.SourceRectangle, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.FlipHorizontally, 1);
+                _spritebatch.Draw(CurrentTexture, position, CurrentAnimation.CurrentFrame.SourceRectangle, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.FlipHorizontally, 1);
             }
             else
             {
-                _spritebatch.Draw(heroTexture, position, animation.CurrentFrame.SourceRectangle, Color.White);
+                _spritebatch.Draw(CurrentTexture, position, CurrentAnimation.CurrentFrame.SourceRectangle, Color.White);
             }
         }
     }
