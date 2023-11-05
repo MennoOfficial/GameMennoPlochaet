@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using GameMennoPlochaet.Characters.Hero;
 using System.Collections.Generic;
+using TiledSharp;
+using GameMennoPlochaet.Manager;
 
 namespace GameMennoPlochaet
 {
@@ -12,6 +14,8 @@ namespace GameMennoPlochaet
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+        private TmxMap map;
+        private MapManager mapManager;
 
         private List<Texture2D> _texture = new();
         Hero hero;
@@ -30,6 +34,15 @@ namespace GameMennoPlochaet
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            map = new TmxMap("Content/Map/Map1.tmx");
+            var tileset = Content.Load<Texture2D>(map.Tilesets[0].Name.ToString());
+            var tileWidth = map.Tilesets[0].TileWidth;
+            var tileHeight = map.Tilesets[0].TileHeight;
+            var TileSetTilesWide = tileset.Width / tileWidth;
+            mapManager = new MapManager(_spriteBatch, map, tileset, TileSetTilesWide, tileWidth, tileHeight);
+
+
             _texture.Add(Content.Load<Texture2D>("Characters/Hero/Animation/Run"));
             _texture.Add(Content.Load<Texture2D>("Characters/Hero/Animation/Jump"));
             _texture.Add(Content.Load<Texture2D>("Characters/Hero/Animation/Idle"));
@@ -55,7 +68,9 @@ namespace GameMennoPlochaet
             GraphicsDevice.Clear(Color.DarkRed);
             _spriteBatch.Begin();
             hero.Draw(_spriteBatch);
+            mapManager.Draw();
             _spriteBatch.End();
+
             base.Draw(gameTime);
         }
     }
