@@ -6,6 +6,7 @@ using TiledSharp;
 
 namespace GameMennoPlochaet.Manager
 {
+    //This class is copied from the internet.
     public class MapManager
     {
         //All the variables which we will need

@@ -65,7 +65,7 @@ namespace GameMennoPlochaet
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.DarkRed);
+            GraphicsDevice.Clear(Color.PowderBlue);
             _spriteBatch.Begin();
             hero.Draw(_spriteBatch);
             mapManager.Draw();
