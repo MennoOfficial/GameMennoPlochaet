@@ -6,7 +6,7 @@ using TiledSharp;
 
 namespace GameMennoPlochaet.Manager
 {
-    //This class is copied from the internet.
+    //This class is mostly copied from the internet.
     public class MapManager
     {
         //All the variables which we will need
@@ -17,7 +17,8 @@ namespace GameMennoPlochaet.Manager
         int tileWidth;
         int tileHeight;
 
-        public static List<Rectangle> colliders = new();
+
+        public static List<Rectangle> mapHitbox = new();
         public MapManager(SpriteBatch _spriteBatch, TmxMap _map, Texture2D _tileset, int _tilesetTilesWide, int _tileWidth, int _tileHeight)
         //Initializing our vairiables
         {
@@ -27,9 +28,14 @@ namespace GameMennoPlochaet.Manager
             tilesetTilesWide = _tilesetTilesWide;
             tileWidth = _tileWidth;
             tileHeight = _tileHeight;
-        }
 
-        public void Draw()//This is where the magic happens 😄
+            foreach (var tile in map.ObjectGroups["MapHitbox"].Objects)
+            {
+                mapHitbox.Add(new Rectangle((int)tile.X, (int)tile.Y, (int)tile.Width, (int)tile.Height));
+            }
+
+        }
+        public void Draw()
         {
             for (var i = 0; i < map.Layers.Count; i++)//This loops through all the tile map layers present on our tile map
             {
@@ -54,7 +60,7 @@ namespace GameMennoPlochaet.Manager
 
                         if (i == 2)
                         {
-                            colliders.Add(new Rectangle((int)x, (int)y, tileWidth, tileHeight));
+                            mapHitbox.Add(new Rectangle((int)x, (int)y, tileWidth, tileHeight));
                         }
 
                     }

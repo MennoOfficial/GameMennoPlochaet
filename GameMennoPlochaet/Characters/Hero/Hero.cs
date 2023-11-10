@@ -4,13 +4,14 @@
     using TestProject.Animations;
     using System.Collections.Generic;
     using System.Linq;
+using GameMennoPlochaet.Manager;
 
 namespace GameMennoPlochaet.Characters.Hero
 {
     internal class Hero
     {
         public Animation animation;
-        public Vector2 position = Vector2.Zero;
+        public Vector2 position;
         public Vector2 speed = new Vector2(2, 2);
         public Vector2 acceleration = new Vector2(0.2f, 0.2f);
         private Vector2 velocity = Vector2.Zero;
@@ -19,14 +20,20 @@ namespace GameMennoPlochaet.Characters.Hero
         public Animation CurrentAnimation;
         public Animation[] Animations;
         public Texture2D CurrentTexture;
+        public Rectangle playerHitbox;
+
+        //FOR TESTS
+        public Texture2D blockTexture;
 
         public const float Run = 2f;
         public const float Gravity = 0.1f;
-        public const float Jump = 20f;
+        public const float Jump = 1000f;
         public const float MaxVerticalSpeed = 10f;
 
-        public Hero(List<Texture2D> textureList)
+        public Hero(List<Texture2D> textureList, GraphicsDevice gD)
         {
+            position = new Vector2(0,0);
+            playerHitbox = new Rectangle((int)position.X, (int)position.Y, 25,70);
             textureListHero = textureList;
             Animations = new Animation[]
             {
@@ -39,7 +46,71 @@ namespace GameMennoPlochaet.Characters.Hero
             CurrentAnimation = Animations[2];
             CurrentAnimation.addFrame(6, 128);
             CurrentTexture = textureListHero[2];
+
+            //ColiderTests
+            blockTexture = new Texture2D(gD, 1, 1);
+            blockTexture.SetData(new[] { Color.White });
         }
+
+        #region Collisions
+        public bool IsTouchingLeft()
+        {
+            foreach (var colliderBox in MapManager.mapHitbox)
+            {
+                if (this.playerHitbox.Right + this.velocity.X > colliderBox.Left &&
+                    this.playerHitbox.Right > colliderBox.Left &&  // Corrected condition here
+                    this.playerHitbox.Bottom > colliderBox.Top &&
+                    this.playerHitbox.Top < colliderBox.Bottom)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public bool IsTouchingRight()
+        {
+            foreach (var colliderBox in MapManager.mapHitbox)
+            {
+                if (this.playerHitbox.Left + this.velocity.X < colliderBox.Right &&
+                    this.playerHitbox.Left < colliderBox.Right &&
+                    this.playerHitbox.Bottom > colliderBox.Top &&
+                    this.playerHitbox.Top < colliderBox.Bottom)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public bool IsTouchingTop()
+        {
+            foreach (var colliderBox in MapManager.mapHitbox)
+            {
+                if (this.playerHitbox.Bottom + this.velocity.Y > colliderBox.Top &&
+                    this.playerHitbox.Top < colliderBox.Top &&
+                    this.playerHitbox.Right > colliderBox.Left &&
+                    this.playerHitbox.Left < colliderBox.Right)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public bool IsTouchingBottom()
+        {
+            foreach (var colliderBox in MapManager.mapHitbox)
+            {
+                if (this.playerHitbox.Top + this.velocity.Y < colliderBox.Bottom &&
+                    this.playerHitbox.Bottom > colliderBox.Bottom &&
+                    this.playerHitbox.Right > colliderBox.Left &&
+                    this.playerHitbox.Left < colliderBox.Right)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        #endregion
         public void Move()
         {
             float maxSpeed = 10;
@@ -67,6 +138,7 @@ namespace GameMennoPlochaet.Characters.Hero
             if (keyboardState.IsKeyDown(Keys.Space))
             {
                 SetAnimationAndTexture(1, 12);
+                velocity.Y = Jump;
             }
 
             void SetAnimationAndTexture(int animationIndex, int frameCount)
@@ -76,16 +148,13 @@ namespace GameMennoPlochaet.Characters.Hero
                 CurrentTexture = textureListHero[animationIndex];
             }
         }
-        private void ApplyGravity()
+        private void ApplyGravity(GameTime gameTime)
         {
             // Apply gravity by adding a constant amount to the vertical velocity
-            velocity.Y += Gravity*2f;
-
-            // Limit the vertical velocity to a maximum value
-            velocity.Y = MathHelper.Clamp(velocity.Y, -MaxVerticalSpeed, MaxVerticalSpeed);
+            velocity.Y += Gravity*(float)gameTime.ElapsedGameTime.TotalSeconds;
 
             // Update the character's position based on the velocity
-            position += velocity;
+            playerHitbox.Y += (int)velocity.Y;
         }
 
         private Vector2 Limit(Vector2 v, float max)
@@ -101,7 +170,12 @@ namespace GameMennoPlochaet.Characters.Hero
 
         public void Update(GameTime gameTime)
         {
-            ApplyGravity();
+            playerHitbox.X = (int)position.X+50;
+            playerHitbox.Y = (int)position.Y+60;
+            if (!IsTouchingTop())
+            {
+                ApplyGravity(gameTime);
+            }
             Move();
             CurrentAnimation.Update(gameTime);
         }
@@ -116,6 +190,8 @@ namespace GameMennoPlochaet.Characters.Hero
             {
                 _spritebatch.Draw(CurrentTexture, position, CurrentAnimation.CurrentFrame.SourceRectangle, Color.White);
             }
+
+            _spritebatch.Draw(blockTexture, playerHitbox, Color.Pink);
         }
     }
 }

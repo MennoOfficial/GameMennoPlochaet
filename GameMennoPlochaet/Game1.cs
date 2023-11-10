@@ -52,7 +52,7 @@ namespace GameMennoPlochaet
         }
         private void InitializeGameObjects()
         {
-            hero = new Hero(_texture);
+            hero = new Hero(_texture, GraphicsDevice);
         }
         protected override void Update(GameTime gameTime)
         {
