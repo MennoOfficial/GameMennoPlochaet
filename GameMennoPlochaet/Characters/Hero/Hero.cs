@@ -1,10 +1,12 @@
-﻿    using Microsoft.Xna.Framework.Graphics;
-    using Microsoft.Xna.Framework.Input;
-    using Microsoft.Xna.Framework;
-    using TestProject.Animations;
-    using System.Collections.Generic;
-    using System.Linq;
+﻿using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework;
+using TestProject.Animations;
+using System.Collections.Generic;
 using GameMennoPlochaet.Manager;
+using System;
+using System.Diagnostics;
+using System.Xml.Serialization;
 
 namespace GameMennoPlochaet.Characters.Hero
 {
@@ -26,14 +28,14 @@ namespace GameMennoPlochaet.Characters.Hero
         public Texture2D blockTexture;
 
         public const float Run = 2f;
-        public const float Gravity = 0.1f;
+        public const float Gravity = 5f;
         public const float Jump = 1000f;
         public const float MaxVerticalSpeed = 10f;
 
         public Hero(List<Texture2D> textureList, GraphicsDevice gD)
         {
-            position = new Vector2(0,0);
-            playerHitbox = new Rectangle((int)position.X, (int)position.Y, 25,70);
+            position = new Vector2(0, 0);
+            playerHitbox = new Rectangle((int)position.X, (int)position.Y, 25, 70);
             textureListHero = textureList;
             Animations = new Animation[]
             {
@@ -111,21 +113,19 @@ namespace GameMennoPlochaet.Characters.Hero
         }
 
         #endregion
-        public void Move()
+        public void Move(GameTime gameTime)
         {
-            float maxSpeed = 10;
-            speed = Limit(speed, maxSpeed);
             var keyboardState = Keyboard.GetState();
             var isRunning = keyboardState.IsKeyDown(Keys.LeftShift);
             var movementSpeed = isRunning ? speed.X * Run : speed.X;
 
-            if (keyboardState.IsKeyDown(Keys.D))
+            if (keyboardState.IsKeyDown(Keys.D) && !IsTouchingRight())
             {
                 flipped = false;
                 SetAnimationAndTexture(isRunning ? 0 : 3, isRunning ? 8 : 6);
                 position.X += movementSpeed;
             }
-            else if (keyboardState.IsKeyDown(Keys.A))
+            else if (keyboardState.IsKeyDown(Keys.A) && !IsTouchingLeft())
             {
                 flipped = true;
                 SetAnimationAndTexture(isRunning ? 0 : 3, isRunning ? 8 : 6);
@@ -134,13 +134,20 @@ namespace GameMennoPlochaet.Characters.Hero
             else
             {
                 SetAnimationAndTexture(2, 6);
+                velocity.X = 0;
             }
-            if (keyboardState.IsKeyDown(Keys.Space))
+            if (keyboardState.IsKeyDown(Keys.Space) && IsTouchingBottom())
             {
                 SetAnimationAndTexture(1, 12);
-                velocity.Y = Jump;
             }
-
+            if (!IsTouchingBottom())
+            {
+                ApplyGravity(gameTime);
+            }
+            else
+            {
+                velocity.Y = 0;
+            }
             void SetAnimationAndTexture(int animationIndex, int frameCount)
             {
                 CurrentAnimation = Animations[animationIndex];
@@ -151,32 +158,23 @@ namespace GameMennoPlochaet.Characters.Hero
         private void ApplyGravity(GameTime gameTime)
         {
             // Apply gravity by adding a constant amount to the vertical velocity
-            velocity.Y += Gravity*(float)gameTime.ElapsedGameTime.TotalSeconds;
+            velocity.Y += Gravity * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // Update the character's position based on the velocity
-            playerHitbox.Y += (int)velocity.Y;
+            // Update the character's position based ofvd n the velocity
+             position.Y += velocity.Y;
+
+            // Update the playerHitbox position
+            playerHitbox.Y = (int)position.Y + 60; // Adjust the value based on your character's position and dimensions
         }
 
-        private Vector2 Limit(Vector2 v, float max)
-        {
-            if (v.Length() > max)
-            {
-                var ratio = max / v.Length();
-                v.X *= ratio;
-                v.Y *= ratio;
-            }
-            return v;
-        }
+
 
         public void Update(GameTime gameTime)
         {
-            playerHitbox.X = (int)position.X+50;
-            playerHitbox.Y = (int)position.Y+60;
-            if (!IsTouchingTop())
-            {
-                ApplyGravity(gameTime);
-            }
-            Move();
+            playerHitbox.X = (int)position.X + 50;
+            playerHitbox.Y = (int)position.Y + 60;
+            Debug.WriteLine($"Position: {position}, Velocity: {velocity}, Touching Bottom: {IsTouchingBottom()}");
+            Move(gameTime);
             CurrentAnimation.Update(gameTime);
         }
 
