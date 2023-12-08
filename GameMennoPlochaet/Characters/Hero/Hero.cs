@@ -23,21 +23,23 @@ namespace GameMennoPlochaet.Characters.Hero
         public Animation[] Animations;
         public Texture2D CurrentTexture;
         public Rectangle playerHitbox;
-
+        public Rectangle nextHitbox;
         //FOR TESTS
         public Texture2D blockTexture;
         //FOR TESTS
-
-
         public const float Run = 2f;
         public const float Gravity = 15f;
         public const float Jump = 7f;
         public const float MaxVerticalSpeed = 10f;
-
+        //Colision
+        public bool isColliding;
+        public bool isJumping;
+        public bool isGrounded;
+        public KeyboardState keyboardState = Keyboard.GetState();
         public Hero(List<Texture2D> textureList, GraphicsDevice gD)
         {
             position = new Vector2(0, 0);
-            playerHitbox = new Rectangle((int)position.X, (int)position.Y, 25, 70);
+            nextHitbox = new Rectangle((int)position.X, (int)position.Y, 25, 70);
             textureListHero = textureList;
             Animations = new Animation[]
             {
@@ -55,28 +57,21 @@ namespace GameMennoPlochaet.Characters.Hero
             blockTexture = new Texture2D(gD, 1, 1);
             blockTexture.SetData(new[] { Color.White });
         }
-
-
         public void Update(GameTime gameTime)
         {
-            playerHitbox.X = (int)position.X + 50;
-            playerHitbox.Y = (int)position.Y + 60;
-            Debug.WriteLine($"Position: {position}, Velocity: {velocity}, Touching Bottom: {IsTouchingBottom()}, Touching Left: {IsTouchingLeft()}, Touching Right: {IsTouchingRight()}");
+            keyboardState = Keyboard.GetState();
             Move(gameTime);
+            HandleJump();
+            HandleGravity(gameTime);
+            HandleCollision3();
+            playerHitbox = nextHitbox;
+            position = new Vector2(playerHitbox.X - 50, playerHitbox.Y - 60);
+            Debug.WriteLine($"Position: {position}, Velocity: {velocity}, Collision: {isColliding}");
+            
             CurrentAnimation.Update(gameTime);
         }
-
         public void Draw(SpriteBatch _spritebatch)
         {
-            var isColliding = false;
-            foreach (var colliderBox in MapManager.mapHitbox)
-            {
-                if (this.playerHitbox.Intersects(colliderBox))
-                {
-                    isColliding = true;
-                    break;
-                }
-            }
             if (flipped)
             {
                 _spritebatch.Draw(CurrentTexture, position, CurrentAnimation.CurrentFrame.SourceRectangle, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.FlipHorizontally, 1);
@@ -86,156 +81,115 @@ namespace GameMennoPlochaet.Characters.Hero
                 _spritebatch.Draw(CurrentTexture, position, CurrentAnimation.CurrentFrame.SourceRectangle, Color.White);
             }
 
-            _spritebatch.Draw(blockTexture, playerHitbox, Color.Pink);
+            _spritebatch.Draw(blockTexture, nextHitbox, Color.Pink);
         }
-
         public void Move(GameTime gameTime)
         {
-            var keyboardState = Keyboard.GetState();
             var isRunning = keyboardState.IsKeyDown(Keys.LeftShift);
             var movementSpeed = isRunning ? speed.X * Run : speed.X;
 
-            if (keyboardState.IsKeyDown(Keys.D) && !IsTouchingRight())
+            if (keyboardState.IsKeyDown(Keys.D))
             {
                 flipped = false;
                 SetAnimationAndTexture(isRunning ? 0 : 3, isRunning ? 8 : 6);
-                position.X += movementSpeed;
+                nextHitbox.X += (int)movementSpeed;
             }
-            else if (keyboardState.IsKeyDown(Keys.A) && !IsTouchingLeft())
+            else if (keyboardState.IsKeyDown(Keys.A))
             {
                 flipped = true;
                 SetAnimationAndTexture(isRunning ? 0 : 3, isRunning ? 8 : 6);
-                position.X -= movementSpeed;
-
+                nextHitbox.X -= (int)movementSpeed;
             }
             else
             {
                 SetAnimationAndTexture(2, 6);
-            }
-
-            if (!IsTouchingBottom())
-            {
-                ApplyGravity(gameTime);
-            }
-            else
-            {
-                velocity.Y = 0;
-            }
-            if (keyboardState.IsKeyDown(Keys.Space) && IsTouchingBottom())
+            }          
+        }
+        public void HandleJump()
+        {
+            if (keyboardState.IsKeyDown(Keys.Space) && !isJumping && isGrounded)
             {
                 velocity.Y = -Jump;
+                isJumping = true;
+                isGrounded = false;
                 SetAnimationAndTexture(1, 12);
             }
-            void SetAnimationAndTexture(int animationIndex, int frameCount)
-            {
-                CurrentAnimation = Animations[animationIndex];
-                CurrentAnimation.addFrame(frameCount, 128);
-                CurrentTexture = textureListHero[animationIndex];
-            }
         }
-
-        private void ApplyGravity(GameTime gameTime)
+        public void SetAnimationAndTexture(int animationIndex, int frameCount)
         {
-            if (!IsTouchingBottom())
-            {
-                // Apply gravity by adding a constant amount to the vertical velocity
+            CurrentAnimation = Animations[animationIndex];
+            CurrentAnimation.addFrame(frameCount, 128);
+            CurrentTexture = textureListHero[animationIndex];
+        }
+        private void HandleGravity(GameTime gameTime)
+        {           
+                nextHitbox.Y += (int)velocity.Y;
                 velocity.Y += Gravity * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-                // Update the character's position based ofvd n the velocity
-                position.Y += velocity.Y;
-
-                // Update the playerHitbox position
-                playerHitbox.Y = (int)position.Y + 60; // Adjust the value based on your character's position and dimensions
-            }
         }
-
         #region Collisions
-        public bool IsTouchingRight()
+        private void HandleCollision3()
         {
-            foreach (var colliderBox in MapManager.mapHitbox)
-            {
-                if (this.playerHitbox.Right + this.velocity.X > colliderBox.Left &&
-                    this.playerHitbox.Left < colliderBox.Left &&
-                    this.playerHitbox.Bottom > colliderBox.Top &&
-                    this.playerHitbox.Top < colliderBox.Bottom)
-                {
-                    // If the character is already overlapping with the collider,
-                    // only reset their velocity if they are moving into the collider.
-                    /*
-                    if (this.velocity.X > 0)
-                    {
-                        this.velocity.X = 0;
-                    }
-                    else
-                    {
-                        this.playerHitbox.X = colliderBox.Left - this.playerHitbox.Width;
-                        this.velocity.X = -this.velocity.X;
-                    }
-                    */
-                    return true;
-                }
-            }
-            return false;
-        }
+            Vector2 correctionVector = new Vector2(100000, 100000);
 
-        public bool IsTouchingLeft()
-        {
-            foreach (var colliderBox in MapManager.mapHitbox)
+            isColliding = false;
+            foreach (var box in MapManager.mapHitbox)
             {
-                if (this.playerHitbox.Left + this.velocity.X < colliderBox.Right &&
-                    this.playerHitbox.Right > colliderBox.Right &&
-                    this.playerHitbox.Bottom > colliderBox.Top &&
-                    this.playerHitbox.Top < colliderBox.Bottom)
+                if (box.Intersects(nextHitbox))
                 {
-                    // If the character is already overlapping with the collider,
-                    // only reset their velocity if they are moving into the collider.
-                    /*
-                    if (this.velocity.X < 0)
+                   isJumping = false;
+                    velocity.Y = 0;
+                    if (box.Top - nextHitbox.Bottom < 0) // ground collision
                     {
-                        this.velocity.X = 0;
+                        int correction = nextHitbox.Bottom - box.Top;
+                        if (Math.Abs(correction) < Math.Abs(correctionVector.Y))
+                        {
+                            correctionVector.Y = correction;
+
+                        }
                     }
-                    else
+                    if (box.Bottom - nextHitbox.Top > 0) // top collision
                     {
-                        this.playerHitbox.X = colliderBox.Right;
-                        this.velocity.X = -this.velocity.X;
+                        int correction = nextHitbox.Top - box.Bottom;
+                        if (Math.Abs(correction) < Math.Abs(correctionVector.Y))
+                        {
+                            correctionVector.Y = correction;
+                        }
                     }
-                    */
-                    return true;
+                    if (box.Left - nextHitbox.Left > 0) // Right collision
+                    {
+                        int correction = box.Left - nextHitbox.Right;
+                        if (Math.Abs(correction) < Math.Abs(correctionVector.X))
+                        {
+                            correctionVector.X = correction;
+                        }
+                    }
+                    if (box.Right - nextHitbox.Right < 0) // Left collision
+                    {
+                        int correction = box.Right - nextHitbox.Left;
+                        if (Math.Abs(correction) < Math.Abs(correctionVector.X))
+                        {
+                            correctionVector.X = correction;
+                        }
+                    }
                 }
             }
-            return false;
-        }
-
-        public bool IsTouchingBottom()
-        {
-            foreach (var colliderBox in MapManager.mapHitbox)
+            if (correctionVector.Y < 20 || correctionVector.X < 20)
             {
-                if (this.playerHitbox.Bottom + this.velocity.Y > colliderBox.Top &&
-                    this.playerHitbox.Top < colliderBox.Top &&
-                    this.playerHitbox.Right > colliderBox.Left &&
-                    this.playerHitbox.Left < colliderBox.Right)
+                if (Math.Abs(correctionVector.Y) > Math.Abs(correctionVector.X))
                 {
-                    return true;
+                    nextHitbox.X += (int)correctionVector.X;
+                    isColliding = true;
+                }
+                else
+                {
+                    if (correctionVector.Y > 0)
+                    {
+                        isGrounded = true;
+                    }
+                    nextHitbox.Y -= (int)correctionVector.Y;
                 }
             }
-            return false;
         }
-        public bool IsTouchingTop()
-        {
-            foreach (var colliderBox in MapManager.mapHitbox)
-            {
-                if (this.playerHitbox.Top + this.velocity.Y < colliderBox.Bottom &&
-                    this.playerHitbox.Bottom > colliderBox.Bottom &&
-                    this.playerHitbox.Right > colliderBox.Left &&
-                    this.playerHitbox.Left < colliderBox.Right)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        #endregion
-        
     }
+    #endregion
 }
