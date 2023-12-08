@@ -6,13 +6,13 @@ using System.Collections.Generic;
 using TiledSharp;
 using GameMennoPlochaet.Manager;
 
-namespace GameMennoPlochaet
+namespace GameMennoPlochaet.Core
 {
 
     public class Game1 : Game
     {
 
-        private GraphicsDeviceManager _graphics;
+        private static GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private TmxMap map;
         private MapManager mapManager;
