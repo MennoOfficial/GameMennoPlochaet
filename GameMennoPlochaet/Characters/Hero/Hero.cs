@@ -28,8 +28,8 @@ namespace GameMennoPlochaet.Characters.Hero
         public Texture2D blockTexture;
         //FOR TESTS
         public const float Run = 2f;
-        public const float Gravity = 15f;
-        public const float Jump = 7f;
+        public const float Gravity = 17f;
+        public const float Jump = 9f;
         public const float MaxVerticalSpeed = 10f;
         //Colision
         public bool isColliding;
@@ -38,7 +38,7 @@ namespace GameMennoPlochaet.Characters.Hero
         public KeyboardState keyboardState = Keyboard.GetState();
         public Hero(List<Texture2D> textureList, GraphicsDevice gD)
         {
-            position = new Vector2(0, 0);
+            position = new Vector2(0, 1000-30);
             nextHitbox = new Rectangle((int)position.X, (int)position.Y, 25, 70);
             textureListHero = textureList;
             Animations = new Animation[]
@@ -81,7 +81,7 @@ namespace GameMennoPlochaet.Characters.Hero
                 _spritebatch.Draw(CurrentTexture, position, CurrentAnimation.CurrentFrame.SourceRectangle, Color.White);
             }
 
-            _spritebatch.Draw(blockTexture, nextHitbox, Color.Pink);
+            //_spritebatch.Draw(blockTexture, nextHitbox, Color.Pink);
         }
         public void Move(GameTime gameTime)
         {

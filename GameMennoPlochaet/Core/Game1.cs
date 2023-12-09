@@ -52,6 +52,7 @@ namespace GameMennoPlochaet.Core
         }
         private void InitializeGameObjects()
         {
+            setFullscreen();
             hero = new Hero(_texture, GraphicsDevice);
         }
         protected override void Update(GameTime gameTime)
@@ -65,13 +66,20 @@ namespace GameMennoPlochaet.Core
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.PowderBlue);
+            GraphicsDevice.Clear(Color.DeepSkyBlue);
             _spriteBatch.Begin();
             hero.Draw(_spriteBatch);
             mapManager.Draw();
             _spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        public void setFullscreen()
+        {
+            _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            _graphics.ApplyChanges();
         }
     }
 }
