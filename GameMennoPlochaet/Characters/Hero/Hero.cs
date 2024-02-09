@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace GameMennoPlochaet.Characters.Hero
 {
-    internal class Hero
+    internal class Hero : Entity
     {
         public Animation animation;
         public Vector2 position;
