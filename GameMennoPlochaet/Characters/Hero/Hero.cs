@@ -12,7 +12,6 @@ namespace GameMennoPlochaet.Characters.Hero
 {
     internal class Hero : Entity
     {
-        public Animation animation;
         public Vector2 position;
         public Vector2 speed = new Vector2(2, 2);
         public Vector2 acceleration = new Vector2(0.2f, 0.2f);
@@ -36,11 +35,11 @@ namespace GameMennoPlochaet.Characters.Hero
         public bool isJumping;
         public bool isGrounded;
         public KeyboardState keyboardState = Keyboard.GetState();
-        public Hero(List<Texture2D> textureList, GraphicsDevice gD)
+        public Hero(GraphicsDevice gD)
         {
             position = new Vector2(0, 1000-30);
             nextHitbox = new Rectangle((int)position.X, (int)position.Y, 25, 70);
-            textureListHero = textureList;
+            textureListHero = ContentLoader.HeroTexture;
             Animations = new Animation[]
             {
                     new Animation(),

@@ -14,10 +14,9 @@ namespace GameMennoPlochaet.Core
 
         private static GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private TmxMap map;
         private MapManager mapManager;
 
-        private List<Texture2D> _texture = new();
+        
         Hero hero;
 
         public Game1()
@@ -34,26 +33,16 @@ namespace GameMennoPlochaet.Core
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            map = new TmxMap("Content/Map/Map1.tmx");
-            var tileset = Content.Load<Texture2D>(map.Tilesets[0].Name.ToString());
-            var tileWidth = map.Tilesets[0].TileWidth;
-            var tileHeight = map.Tilesets[0].TileHeight;
-            var TileSetTilesWide = tileset.Width / tileWidth;
-            mapManager = new MapManager(_spriteBatch, map, tileset, TileSetTilesWide, tileWidth, tileHeight);
-
-
-            _texture.Add(Content.Load<Texture2D>("Characters/Hero/Animation/Run"));
-            _texture.Add(Content.Load<Texture2D>("Characters/Hero/Animation/Jump"));
-            _texture.Add(Content.Load<Texture2D>("Characters/Hero/Animation/Idle"));
-            _texture.Add(Content.Load<Texture2D>("Characters/Hero/Animation/Walk"));
+            ContentLoader contentLoader = new ContentLoader(Content);
+            ContentLoader.LoadAllContent();
+            mapManager = new MapManager(_spriteBatch, ContentLoader.map, ContentLoader.tileset);
 
             InitializeGameObjects();
         }
         private void InitializeGameObjects()
         {
             setFullscreen();
-            hero = new Hero(_texture, GraphicsDevice);
+            hero = new Hero(GraphicsDevice);
         }
         protected override void Update(GameTime gameTime)
         {

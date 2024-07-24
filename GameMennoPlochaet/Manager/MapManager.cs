@@ -19,15 +19,16 @@ namespace GameMennoPlochaet.Manager
 
 
         public static List<Rectangle> mapHitbox = new();
-        public MapManager(SpriteBatch _spriteBatch, TmxMap _map, Texture2D _tileset, int _tilesetTilesWide, int _tileWidth, int _tileHeight)
-        //Initializing our vairiables
+        public MapManager(SpriteBatch _spriteBatch, TmxMap _map, Texture2D _tileset)
+
         {
             spriteBatch = _spriteBatch;
             map = _map;
             tileset = _tileset;
-            tilesetTilesWide = _tilesetTilesWide;
-            tileWidth = _tileWidth;
-            tileHeight = _tileHeight;
+            
+            tileWidth = map.Tilesets[0].TileWidth;
+            tileHeight = map.Tilesets[0].TileHeight;
+            tilesetTilesWide = tileset.Width / tileWidth;
 
             foreach (var tile in map.ObjectGroups["MapHitbox"].Objects)
             {
