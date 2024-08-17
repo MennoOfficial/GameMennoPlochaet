@@ -1,39 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GameMennoPlochaet.Core;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
+﻿using GameMennoPlochaet.Core;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using GameMennoPlochaet.Managers;
 
 namespace GameMennoPlochaet.Scenes
 {
-    internal class MenuScene : Component
+    public class MenuScene
     {
-        private const int MAX_BTNS = 3;
-        private Texture2D[] btns = new Texture2D[MAX_BTNS];
-        private Rectangle[] btnRects = new Rectangle[MAX_BTNS];
-        internal override void LoadContent(ContentManager Content)
+        private Texture2D background;
+        private Texture2D playButton;
+        private Vector2 playButtonPos = new Vector2(1920/2 - 207/2, 900);
+        private Rectangle playButtonRec;
+
+        private Vector2 mousePoint = new Vector2();
+
+        public MenuScene() {
+            background = ContentLoader.MenuScreenBackground;
+            playButton = ContentLoader.PlayButton;
+        }
+        public void Update()
         {
-            const int INCREMENT_VALUE = 125;
-            for (int i = 0; i < btns.Length; i++)
+            playButtonRec = new Rectangle((int)playButtonPos.X, (int)playButtonPos.Y, 207, 111);
+            MouseState mouseState = Mouse.GetState();
+            mousePoint = new Vector2(mouseState.X, mouseState.Y);
+            if (playButtonRec.Contains(mousePoint) && mouseState.LeftButton == ButtonState.Pressed)
             {
-                btns[i] = Content.Load<Texture2D>($"btn{i + 1}");
-                btnRects[i] = new Rectangle(0, 0 + (INCREMENT_VALUE * 8), btns[i].Width / 2, btns[i].Height / 2);
+                GamestateManager.getInstance().UpdateScene(Data.Scenes.Level1);
             }
         }
-        internal override void Update(GameTime gameTime)
+
+        public void Draw(SpriteBatch spriteBatch)
         {
+            spriteBatch.Draw(background, Vector2.Zero, Color.White);
+
+            Color buttonColor = playButtonRec.Contains(mousePoint) ? Color.LightGray : Color.White;
+            spriteBatch.Draw(playButton, playButtonPos, buttonColor);
 
         }
-        internal override void Draw(SpriteBatch spriteBatch)
-        {
-            for (int i = 0; i < btns.Length; i++)
-            {
-                spriteBatch.Draw(btns[i], btnRects[i], Color.White);
-            }
-        }
+
     }
 }
