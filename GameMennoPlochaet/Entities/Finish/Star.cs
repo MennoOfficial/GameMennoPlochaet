@@ -10,8 +10,8 @@ namespace GameMennoPlochaet.Entities.Finish
 
         private float initialY;
         private float offsetY = 10f;
-        private float amplitude = 2f; // The range of vertical movement
-        private float frequency = 0.2f; // Frequency of the oscillation
+        private float amplitude = 2f;
+        private float frequency = 0.2f;
 
 
         public Star(Texture2D texture, Vector2 initialPosition)
@@ -20,7 +20,6 @@ namespace GameMennoPlochaet.Entities.Finish
             initialY = initialPosition.Y;
             Texture = texture;
 
-            // Initialize hitbox based on texture dimensions
             Hitbox = new Rectangle((int)position.X, (int)position.Y, 48, 48);
         }
 

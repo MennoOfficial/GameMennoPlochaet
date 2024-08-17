@@ -130,8 +130,8 @@ namespace GameMennoPlochaet.Entities.Hero
         private void ActivateInvincibility()
         {
             isInvincible = true;
-            invincibilityTimer = 0; // Reset the timer
-            color = Color.DarkGray; // Start with flickering color to indicate invincibility
+            invincibilityTimer = 0;
+            color = Color.DarkGray;
         }
 
         public override void Draw(SpriteBatch _spritebatch)
@@ -206,7 +206,7 @@ namespace GameMennoPlochaet.Entities.Hero
                 {
                     gems.count++;
                     gemsToRemove.Add(gem);
-                    ActivateInvincibility(); // Activate invincibility when picking up a gem
+                    ActivateInvincibility();
                 }
             }
             foreach (var gem in gemsToRemove)
@@ -248,7 +248,7 @@ namespace GameMennoPlochaet.Entities.Hero
             if (isHit)
             {
                 hitCounter += gameTime.ElapsedGameTime.TotalMilliseconds;
-                if (hitCounter < 5000) // Immunity period
+                if (hitCounter < 5000)
                 {
                     color = (hitCounter % 200 < 100) ? Color.DarkGray : Color.White;
                 }
@@ -273,7 +273,7 @@ namespace GameMennoPlochaet.Entities.Hero
                 {
                     isJumping = false;
                     velocity.Y = 0;
-                    if (box.Top - nextHitbox.Bottom < 0) // ground collision
+                    if (box.Top - nextHitbox.Bottom < 0)
                     {
                         int correction = nextHitbox.Bottom - box.Top;
                         if (Math.Abs(correction) < Math.Abs(correctionVector.Y))

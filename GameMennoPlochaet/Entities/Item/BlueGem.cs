@@ -11,8 +11,8 @@ namespace GameMennoPlochaet.Entities.Item
         public override Vector2 position { get; set; }
 
         private float initialY;
-        private float amplitude = 10f; // The range of vertical movement
-        private float frequency = 0.2f; // Frequency of the oscillation
+        private float amplitude = 10f;
+        private float frequency = 0.2f;
         private Animation CurrentAnimation;
 
 
@@ -22,10 +22,8 @@ namespace GameMennoPlochaet.Entities.Item
             initialY = initialPosition.Y;
             Texture = texture;
 
-            // Initialize hitbox based on texture dimensions
             Hitbox = new Rectangle((int)position.X, (int)position.Y, texture.Width / 5, texture.Width / 5);
 
-            // Initialize the animation
             CurrentAnimation = new Animation();
             CurrentAnimation.addFrame(4, texture.Width / 5);
         }

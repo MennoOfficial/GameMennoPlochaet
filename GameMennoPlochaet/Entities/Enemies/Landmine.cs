@@ -29,7 +29,6 @@ internal class Landmine : Entity
         this.button = button;
         Hitbox = button;
 
-        // Initialize the animation (assume it has 12 frames of 96 height each)
         CurrentAnimation = new Animation();
         CurrentAnimation.addFrame(12, 96);
         position = new Vector2(button.X + button.Width + RightOffset, button.Y + TopOffset);
@@ -52,12 +51,10 @@ internal class Landmine : Entity
     {
         if (hasStartedAnimation)
         {
-            // Continuously update the animation while it hasn't completed
             CurrentAnimation.Update(gameTime);
 
             updateCounter++;
 
-            // Stop updating once the animation completes
             if (updateCounter >= 48)
             {
                 hasStartedAnimation = false;
@@ -69,7 +66,6 @@ internal class Landmine : Entity
     {
         if (hasStartedAnimation)
         {
-            // Draw the current frame of the animation
             spriteBatch.Draw(
                 Texture,
                 position,

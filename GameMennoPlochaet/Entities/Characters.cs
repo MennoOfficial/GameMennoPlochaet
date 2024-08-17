@@ -9,7 +9,7 @@ namespace GameMennoPlochaet.Entities
         public Animation[] Animations { get; set; }
         public Vector2 MovingDirection { get; set; }
         public Rectangle nextHitBox;
-        public float Gravity = 4.3f; //origineel 4f
+        public float Gravity = 4.3f;
         public Vector2 Velocity;
 
         public abstract void Update(GameTime gameTime);

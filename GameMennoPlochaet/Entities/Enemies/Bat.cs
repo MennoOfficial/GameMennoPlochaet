@@ -11,8 +11,8 @@ namespace GameMennoPlochaet.Entities.Enemies
         public override Vector2 position { get; set; }
 
         private float initialY;
-        private float amplitude = 80f; // The range of vertical movement
-        private float frequency = 0.8f; // Frequency of the oscillation
+        private float amplitude = 80f;
+        private float frequency = 0.8f;
         private Animation CurrentAnimation;
 
 
@@ -22,26 +22,21 @@ namespace GameMennoPlochaet.Entities.Enemies
             initialY = initialPosition.Y;
             Texture = texture;
 
-            // Initialize hitbox based on texture dimensions
             Hitbox = new Rectangle((int)position.X, (int)position.Y, texture.Width / 4, texture.Width / 4);
 
-            // Initialize the animation
             CurrentAnimation = new Animation();
             CurrentAnimation.addFrame(4, texture.Width/4);
         }
 
         public override void Update(GameTime gameTime)
         {
-            // Update animation
             CurrentAnimation.Update(gameTime);
 
-            // Calculate vertical movement using a sine wave
             float time = (float)gameTime.TotalGameTime.TotalSeconds;
             float offsetY = amplitude * (float)Math.Sin(frequency * time);
 
             position = new Vector2(position.X, initialY + offsetY);
 
-            // Update hitbox position by creating a new Rectangle
             Hitbox = new Rectangle(position.ToPoint(), Hitbox.Size);
         }
 
@@ -50,7 +45,7 @@ namespace GameMennoPlochaet.Entities.Enemies
             spriteBatch.Draw(
                 Texture,
                 position,
-                CurrentAnimation.CurrentFrame.SourceRectangle, // Use animation frame if applicable
+                CurrentAnimation.CurrentFrame.SourceRectangle,
                 Color.White
             );
         }
