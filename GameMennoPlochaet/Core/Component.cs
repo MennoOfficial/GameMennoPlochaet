@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+﻿    using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -11,7 +11,6 @@ namespace GameMennoPlochaet.Core
 {
     internal abstract class Component
     {
-        internal abstract void LoadContent(ContentManager manager);
         internal abstract void Update(GameTime gameTime);
         internal abstract void Draw(SpriteBatch spriteBatch);
     }

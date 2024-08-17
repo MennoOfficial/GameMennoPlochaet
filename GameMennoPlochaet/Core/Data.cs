@@ -12,6 +12,7 @@ namespace GameMennoPlochaet.Core
     {
         public static ContentManager Content { get; set; }
         public static SpriteBatch SpriteBatch { get; set; }
+        public static GraphicsDevice GraphicsDevice { get; set; }
         public enum Scenes
         {
             Menu,
